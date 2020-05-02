@@ -1,4 +1,15 @@
-# Load in packages
+# This file has four sections (data merging, followed by one section each for the 3 maps). 
+# You can use the titles below for ctrl-f searching.
+
+# 1. prep the data
+# 2. ratios
+# 3. tests
+# 4. cases
+
+
+###########################
+#### 1. prep the data #####
+###########################
 
 require(pacman)
 
@@ -46,9 +57,13 @@ tests_recent <- tests %>% dplyr::filter(date >= today - int_length(13))
 
 tests_recent <- tests_recent %>% dplyr::filter(totalTestResultsIncrease >= 0)
 
-###########
-###ratio###
-###########
+# The 3 sections below (ratio, tests, cases) create the three maps
+
+###################
+#### 2. ratios ####
+###################
+
+# loop makes the individual state plots
 
 for (i in 1:50) {
   
@@ -57,15 +72,17 @@ for (i in 1:50) {
   
   temp_dat <- tests_recent[which(tests_recent$state==state_abb),]
   
-  # a handful of total test numbers are negative, replace with 0s
-  
-  temp_dat$wt <- ifelse(temp_dat$totalTestResultsIncrease > 0,temp_dat$totalTestResultsIncrease, 0)
-  
-  #run weighted OLS to get the state's color
+  # This section creates state silhouette
+  # run OLS to get the state's color
   
   res <- lm(pos_ratio ~ date,data=temp_dat) %>% tidy()
   est <- res$estimate[which(res$term=="date")]
   sig <- res$p.value[which(res$term=="date")]
+  
+  # sig negative = green
+  # sig positive = red
+  # not sig = yellow
+  # use significance level of .2
   
   col <- ifelse(est<0 & sig <= .2,"green","yellow")
   col <- ifelse(est > 0 & sig <= .2,"red",col)
@@ -84,8 +101,7 @@ for (i in 1:50) {
   img <- png::readPNG(paste0("~/state_curves/state_img/",state_name2,"_outline.png"))
   
 
-  
-  
+  # This section builds plot on top of state silhouette
   
   temp <- ggplot(temp_dat) +
     background_image(img) +
@@ -99,7 +115,7 @@ for (i in 1:50) {
              y=mean(c(min(temp_dat$pos_ratio,na.rm=T),max(temp_dat$pos_ratio,na.rm=T)))) +
     
     geom_point(aes(x=date,y=pos_ratio),size=3,show.legend = F) +
-    geom_smooth(aes(x=date,y=pos_ratio,weight=wt),method="lm",se=F,color="blue",size=2) +
+    geom_smooth(aes(x=date,y=pos_ratio),method="lm",se=F,color="blue",size=2) +
     
     labs(x="",
          y=paste0("Ratio of positive tests to total tests")) +
@@ -111,6 +127,11 @@ for (i in 1:50) {
   
 }
 
+# state plots all stored in environment under their abbreviations
+
+# this chunk arranges the state plots into a map-like arrangement
+# have to arrange top and bottom separately since patchwork can't handle
+# more than 26 plots (plots notated by letters)
 
 layout <- "
 A#########B
@@ -143,17 +164,22 @@ bottom <- CA + UT + CO + NE + MO + KY + WV + VA + MD + DE +
 
 ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
 
+# join top and bottom plots together, add title/caption
 
-
-top / bottom + plot_annotation(title=paste0("Positive covid-19 tests (proportion)\n"),
-                               caption="Source: Covid-19 Tracking Project and US Census Bureau        \nPoint sizes indicate total tests        \nBest fit line weighted by number of cases per day        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
+top / bottom + plot_annotation(title=paste0("Positive tests as a percentage of total tests, last 14 days\n"),
+                               caption="Source: The COVID Tracking Project        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
                                theme=theme(plot.title = element_text(family="Book Antiqua",size=50,hjust=.5,vjust=.1),
                                            plot.caption = element_text(family="Book Antiqua",size=35,color="grey30"))) 
 ggsave("~/state_curves/ratio.png",last_plot(),width=43,height=35,units="in")
 
-###############
-#### tests ####
-###############
+
+# Next two sections work the same way
+# note that the state silhouettes are saved over the top of silhouettes generated in previous sections
+# just because I don't want to bloat the repo and they're easy to generate
+
+##################
+#### 3. tests ####
+##################
 
 for (i in 1:50) {
   
@@ -197,7 +223,7 @@ for (i in 1:50) {
              x=today - int_length(6),
              y=max(tests$totalTestResultsIncrease[which(tests$state==state_abb)],na.rm=T)/2) +
     
-    geom_point(aes(x=date,y=totalTestResultsIncrease)) +
+    geom_point(aes(x=date,y=totalTestResultsIncrease),size=3) +
     geom_smooth(data = temp_dat,aes(x=date,y=totalTestResultsIncrease),method="lm",se=F,color="blue",size=2) +
     #  geom_point(aes(x=date,y=pos_ma_pc*5)) +
     #  geom_smooth(aes(x=date,y=pos_ma_pc*5),method="lm",formula=y ~ poly(x, 7,raw=F),se=F,color="blue") +
@@ -249,14 +275,14 @@ ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
 
 
 top / bottom + plot_annotation(title=paste0("Total Covid-19 tests processed per day\n"),
-                               caption="Source: Covid-19 Tracking Project and US Census Bureau        \n        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
+                               caption="Source: The COVID Tracking Project        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
                                theme=theme(plot.title = element_text(family="Book Antiqua",size=50,hjust=.5,vjust=.1),
                                            plot.caption = element_text(family="Book Antiqua",size=35,color="grey30"))) 
 ggsave("~/state_curves/total.png",last_plot(),width=43,height=35,units="in")
 
-#############
-####cases####
-#############
+##################
+#### 4. cases ####
+##################
 
 for (i in 1:50) {
   
@@ -264,10 +290,8 @@ for (i in 1:50) {
   state_abb <- state.abb[i]
   
   temp_dat <- tests_recent[which(tests_recent$state==state_abb),]
-  temp_dat$wt <- ifelse(temp_dat$totalTestResultsIncrease > 0,temp_dat$totalTestResultsIncrease, 0)
   
-  
-  res <- lm(positiveIncrease ~ date,data=temp_dat,weights=wt) %>% tidy()
+  res <- lm(positiveIncrease ~ date,data=temp_dat) %>% tidy()
   est <- res$estimate[which(res$term=="date")]
   sig <- res$p.value[which(res$term=="date")]
   
@@ -302,8 +326,8 @@ for (i in 1:50) {
              x=today-int_length(6),
              y=mean(c(min(temp_dat$positiveIncrease,na.rm=T),max(temp_dat$positiveIncrease,na.rm=T)))) +
     
-    geom_point(aes(x=date,y=positiveIncrease,size=wt),show.legend = F) +
-    geom_smooth(aes(x=date,y=positiveIncrease,weight=wt),method="lm",se=F,color="blue",size=2) +
+    geom_point(aes(x=date,y=positiveIncrease),size=3,show.legend = F) +
+    geom_smooth(aes(x=date,y=positiveIncrease),method="lm",se=F,color="blue",size=2) +
     
     labs(x="",
          y=paste0("Number of positive tests")) +
@@ -349,8 +373,8 @@ ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
 
 
 
-top / bottom + plot_annotation(title="Positive covid-19 tests by state\n",
-                               caption="Source: Covid-19 Tracking Project and US Census Bureau        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
+top / bottom + plot_annotation(title="Documented Covid-19 cases by state, last 14 days\n",
+                               caption="Source: The COVID Tracking Project        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
                                theme=theme(plot.title = element_text(family="Book Antiqua",size=50,hjust=.5,vjust=.1),
                                            plot.caption = element_text(family="Book Antiqua",size=35,color="grey30"))) 
 ggsave("~/state_curves/cases.png",last_plot(),width=43,height=35,units="in")
