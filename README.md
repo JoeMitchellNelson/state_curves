@@ -6,7 +6,7 @@ Run file `testing.R` to build color-coded maps of every state to quickly evaluat
 
 ![](guidelines.png)
 
-#### Trajectories of documented cases
+### Trajectories of documented cases
 
 ![](cases.png)
 
