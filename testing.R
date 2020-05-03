@@ -156,7 +156,7 @@ top <- AK + ME +
   OR + NV + WY + SD + IA + IN + OH + PA + NJ + CT + RI +
   plot_layout(design = layout)
 
-ggsave("~/state_curves/top.png",last_plot(),width=43,height=16,units="in")
+# ggsave("~/state_curves/top.png",last_plot(),width=43,height=16,units="in")
 
 
 layout2 <- "
@@ -173,7 +173,7 @@ bottom <- CA + UT + CO + NE + MO + KY + WV + VA + MD + DE +
   plot_layout(design = layout2)
 
 
-ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
+# ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
 
 # join top and bottom plots together, add title/caption
 
@@ -263,7 +263,7 @@ top <- AK + ME +
   OR + NV + WY + SD + IA + IN + OH + PA + NJ + CT + RI +
   plot_layout(design = layout)
 
-ggsave("~/state_curves/top.png",last_plot(),width=43,height=16,units="in")
+# ggsave("~/state_curves/top.png",last_plot(),width=43,height=16,units="in")
 
 
 layout2 <- "
@@ -280,7 +280,7 @@ bottom <- CA + UT + CO + NE + MO + KY + WV + VA + MD + DE +
   plot_layout(design = layout2)
 
 
-ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
+# ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
 
 
 
@@ -362,7 +362,7 @@ top <- AK + ME +
   OR + NV + WY + SD + IA + IN + OH + PA + NJ + CT + RI +
   plot_layout(design = layout)
 
-ggsave("~/state_curves/top.png",last_plot(),width=43,height=16,units="in")
+# ggsave("~/state_curves/top.png",last_plot(),width=43,height=16,units="in")
 
 
 layout2 <- "
@@ -379,7 +379,7 @@ bottom <- CA + UT + CO + NE + MO + KY + WV + VA + MD + DE +
   plot_layout(design = layout2)
 
 
-ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
+# ggsave("~/state_curves/bottom.png",last_plot(),width=43,height=16,units="in")
 
 
 
