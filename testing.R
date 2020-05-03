@@ -15,22 +15,27 @@ require(pacman)
 
 p_load(ggplot2,tidyverse,ggpubr,tidycensus,lubridate,patchwork,extrafont,sf,png,ggthemes,mosaic,lfe,broom)
 
-### pull testing data from COVID-19 Tracking Project
+# load in fonts because the ggplot default
+# is some basic ish
+font_import()
+loadfonts(device="win")
+# run fonts() see a list of fonts. 
 
+
+### pull testing data from COVID-19 Tracking Project
 tests <- read.csv("https://raw.githubusercontent.com/COVID19Tracking/covid-tracking-data/master/data/states_daily_4pm_et.csv") %>% 
   dplyr::select(date,state,positive,negative,totalTestResultsIncrease,negativeIncrease,positiveIncrease)
 tests$date <- ymd(tests$date)
 tests <- tests %>% dplyr::filter(state %in% state.abb)
-# set this parameter to control the moving average
 
 
-font_import()
-loadfonts(device="win")
 
-# see a list of fonts. 
-# fonts()  
+# pull in shape files from the census
+# and grab state populations in case I want to do some
+# per capita stuff later
 
-#census_api_key("YOUR-KEY-HERE",install=T)
+# gotta bring your own api key though
+# census_api_key("YOUR-KEY-HERE",install=T)
 
 census_data <- get_acs(geography = "state",
                        variables=c(total="B01003_001"), # total population count
@@ -41,22 +46,26 @@ census_small <- census_data %>% as.data.frame() %>% dplyr::select(NAME,estimate)
 names(census_small) <- c("state","pop")
 census_small <- census_small %>% dplyr::filter(state %in% state.name)
 
-
+# make census state names match covid state names
 for (i in 1:nrow(census_small)) {
   census_small$state[i] <- state.abb[which(state.name==census_small$state[i])]
 }
 
+# merge them suckers
 tests <- left_join(tests,census_small)
+
+# calculate percentage of tests that are positive for each state-day
 tests <- tests %>% mutate(pos_ratio = positiveIncrease/totalTestResultsIncrease)
 
+# filter out all but the last two weeks of data
 today <- max(tests$date)
 tests_recent <- tests %>% dplyr::filter(date >= today - int_length(13))
 
 # a few (three) observations have negative values for totalTestResultsIncrease
 # just throw those out
-
 tests_recent <- tests_recent %>% dplyr::filter(totalTestResultsIncrease >= 0)
 
+# data is ready to boogie
 # The 3 sections below (ratio, tests, cases) create the three maps
 
 ###################
@@ -75,6 +84,8 @@ for (i in 1:50) {
   # This section creates state silhouette
   # run OLS to get the state's color
   
+  # running OLS unweighted. not sure that's the right call, but the 
+  # white house guidelines are super vague 
   res <- lm(pos_ratio ~ date,data=temp_dat) %>% tidy()
   est <- res$estimate[which(res$term=="date")]
   sig <- res$p.value[which(res$term=="date")]
@@ -129,7 +140,7 @@ for (i in 1:50) {
 
 # state plots all stored in environment under their abbreviations
 
-# this chunk arranges the state plots into a map-like arrangement
+# these chunks arrange the state plots into a map-like arrangement
 # have to arrange top and bottom separately since patchwork can't handle
 # more than 26 plots (plots notated by letters)
 
@@ -175,7 +186,6 @@ ggsave("~/state_curves/ratio.png",last_plot(),width=43,height=35,units="in")
 
 # Next two sections work the same way
 # note that the state silhouettes are saved over the top of silhouettes generated in previous sections
-# just because I don't want to bloat the repo and they're easy to generate
 
 ##################
 #### 3. tests ####
