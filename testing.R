@@ -177,7 +177,7 @@ bottom <- CA + UT + CO + NE + MO + KY + WV + VA + MD + DE +
 
 # join top and bottom plots together, add title/caption
 
-top / bottom + plot_annotation(title=paste0("Positive tests as a percentage of total tests, last 14 days\n"),
+top / bottom + plot_annotation(title=paste0("Positive tests as a percentage of total tests\nLast updated ",format(Sys.Date(), "%b %d 20%y"),"\n"),
                                caption="Source: The COVID Tracking Project        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
                                theme=theme(plot.title = element_text(family="Book Antiqua",size=50,hjust=.5,vjust=.1),
                                            plot.caption = element_text(family="Book Antiqua",size=35,color="grey30"))) 
@@ -284,7 +284,7 @@ bottom <- CA + UT + CO + NE + MO + KY + WV + VA + MD + DE +
 
 
 
-top / bottom + plot_annotation(title=paste0("Total Covid-19 tests processed per day\n"),
+top / bottom + plot_annotation(title=paste0("Total Covid-19 tests processed per day\nLast updated ",format(Sys.Date(), "%b %d 20%y"),"\n"),
                                caption="Source: The COVID Tracking Project        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
                                theme=theme(plot.title = element_text(family="Book Antiqua",size=50,hjust=.5,vjust=.1),
                                            plot.caption = element_text(family="Book Antiqua",size=35,color="grey30"))) 
@@ -383,7 +383,7 @@ bottom <- CA + UT + CO + NE + MO + KY + WV + VA + MD + DE +
 
 
 
-top / bottom + plot_annotation(title="Documented Covid-19 cases by state, last 14 days\n",
+top / bottom + plot_annotation(title=paste0("Documented Covid-19 cases by state, last 14 days\nLast updated ",format(Sys.Date(), "%b %d 20%y"),"\n"),
                                caption="Source: The COVID Tracking Project        \nhttps://github.com/JoeMitchellNelson/state_curves        \n",
                                theme=theme(plot.title = element_text(family="Book Antiqua",size=50,hjust=.5,vjust=.1),
                                            plot.caption = element_text(family="Book Antiqua",size=35,color="grey30"))) 
